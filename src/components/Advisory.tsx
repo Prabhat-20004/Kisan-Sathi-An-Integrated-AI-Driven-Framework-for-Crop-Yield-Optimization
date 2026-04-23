@@ -73,12 +73,20 @@ const Advisory: React.FC = () => {
           msg.id === assistantMsgId ? { ...msg, content: currentContent } : msg
         ));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      let errorMsg = "Network error. Please check your connection.";
+      
+      if (error?.message?.includes("max tokens")) {
+        errorMsg = "The response was too long. I've optimized my settings, please try again!";
+      } else if (error?.message?.includes("GEMINI_API_KEY")) {
+        errorMsg = "AI Configuration missing. Please set the GEMINI_API_KEY.";
+      }
+
       setMessages(prev => [...prev, {
-        id: 'err',
+        id: Date.now().toString(),
         role: 'assistant',
-        content: "Network error. I've saved your query and will answer when online.",
+        content: errorMsg,
         timestamp: new Date()
       }]);
     } finally {

@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, ThinkingLevel } from "@google/genai";
 
 let aiInstance: GoogleGenAI | null = null;
 
@@ -40,8 +40,9 @@ export async function getCropAdvice(query: string, imageBase64?: string) {
     model,
     contents: { parts: contents },
     config: {
-      systemInstruction,
+      systemInstruction: systemInstruction + " Please be concise and avoid unnecessary preamble.",
       temperature: 0.7,
+      thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }
     }
   });
 
@@ -74,8 +75,9 @@ export async function* getCropAdviceStream(query: string, imageBase64?: string) 
     model,
     contents: { parts: contents },
     config: {
-      systemInstruction,
+      systemInstruction: systemInstruction + " Please be concise and avoid unnecessary preamble.",
       temperature: 0.7,
+      thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }
     }
   });
 
@@ -100,6 +102,7 @@ export async function assessCropQuality(imageBase64: string) {
     },
     config: {
       responseMimeType: "application/json",
+      thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
       responseSchema: {
         type: Type.OBJECT,
         properties: {
@@ -136,6 +139,7 @@ export async function getCropRecommendation(soilData: any, location: string) {
     contents: { parts: [{ text: prompt }] },
     config: {
       temperature: 0.7,
+      thinkingConfig: { thinkingLevel: ThinkingLevel.LOW }
     }
   });
 
