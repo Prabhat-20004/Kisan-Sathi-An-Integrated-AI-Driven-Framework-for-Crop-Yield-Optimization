@@ -1,0 +1,9 @@
+{
+  "name": "Kisan Sathi - Pro Farmer Ecosystem",
+  "description": "A high-performance AgriTech companion featuring real-time AI crop advisory, dark mode support, and seamless market linkages.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": []
+}

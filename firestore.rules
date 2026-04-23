@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+
+    // --- User Profiles ---
+    match /users/{userId} {
+      function isValidUser(data) {
+        return data.uid == userId && 
+               data.email is string && data.email.size() <= 128 &&
+               (!('farmName' in data) || (data.farmName is string && data.farmName.size() <= 100)) &&
+               (!('landSize' in data) || (data.landSize is string && data.landSize.size() <= 50)) &&
+               (!('tags' in data) || (data.tags is list && data.tags.size() <= 20));
+      }
+
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming()) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['farmName', 'landSize', 'tags', 'updatedAt']);
+    }
+
+    // --- Grains Marketplace ---
+    match /grains/{grainId} {
+      function isValidGrain(data) {
+        return data.userId == request.auth.uid &&
+               data.type is string && data.type.size() <= 50 &&
+               data.variety is string && data.variety.size() <= 50 &&
+               data.grade is string && data.grade.size() <= 10 &&
+               data.price is number && data.price >= 0 &&
+               data.quantity is string && data.quantity.size() <= 50;
+      }
+
+      allow list: if isSignedIn();
+      allow get: if isSignedIn();
+      allow create: if isVerified() && isValidId(grainId) && isValidGrain(incoming());
+      allow update: if isVerified() && isOwner(existing().userId) && isValidGrain(incoming()) &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['price', 'quantity', 'status', 'updatedAt']);
+      allow delete: if isVerified() && isOwner(existing().userId);
+    }
+
+    // --- Soil Health Records ---
+    match /soil_records/{recordId} {
+      function isValidSoil(data) {
+        return data.userId == request.auth.uid &&
+               data.ph is number &&
+               data.nitrogen is string &&
+               data.phosphorus is string &&
+               data.potassium is string &&
+               data.moisture is string &&
+               data.date is string;
+      }
+
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isVerified() && isValidId(recordId) && isValidSoil(incoming());
+      allow update: if isVerified() && isOwner(existing().userId) && isValidSoil(incoming());
+      allow delete: if isVerified() && isOwner(existing().userId);
+    }
+  }
+}

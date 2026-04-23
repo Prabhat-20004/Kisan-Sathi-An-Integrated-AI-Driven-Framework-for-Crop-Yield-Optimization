@@ -1,0 +1,63 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Farmer profile information and settings",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "farmName": { "type": "string" },
+        "landSize": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Grain": {
+      "title": "Grain Inventory",
+      "description": "Grain items for sale in the marketplace",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "variety": { "type": "string" },
+        "grade": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "string" },
+        "status": { "type": "string", "enum": ["Available", "Sold", "Reserved"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "variety", "grade", "price", "quantity"]
+    },
+    "SoilRecord": {
+      "title": "Soil Health Record",
+      "description": "Historical soil health data for tracking",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "ph": { "type": "number" },
+        "nitrogen": { "type": "string" },
+        "phosphorus": { "type": "string" },
+        "potassium": { "type": "string" },
+        "moisture": { "type": "string" },
+        "date": { "type": "string", "format": "date" }
+      },
+      "required": ["userId", "ph", "nitrogen", "phosphorus", "potassium", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Farmer profiles"
+    },
+    "/grains/{grainId}": {
+      "schema": "Grain",
+      "description": "Global grain marketplace"
+    },
+    "/soil_records/{recordId}": {
+      "schema": "SoilRecord",
+      "description": "Personal soil health logs"
+    }
+  }
+}
