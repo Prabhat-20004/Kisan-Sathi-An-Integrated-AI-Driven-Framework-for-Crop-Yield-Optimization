@@ -141,9 +141,9 @@ const Dashboard: React.FC = () => {
           <h3 className="font-bold text-slate-800 dark:text-slate-100">Wheat (Kanak) Trends</h3>
           <span className="text-xs text-green-600 dark:text-green-400 font-bold bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full">+12% this week</span>
         </div>
-        <div className="h-48 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={mandiData}>
+        <div className="h-48 w-full" style={{ minWidth: 0 }}>
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
+            <AreaChart data={mandiData} key={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}>
               <defs>
                 <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#16a34a" stopOpacity={0.1}/>
@@ -178,10 +178,10 @@ const Dashboard: React.FC = () => {
       <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 transition-all duration-300">
         <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4">Soil Health Card</h3>
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-2xl border border-orange-100 dark:border-orange-900/30">
-            <div className="text-orange-600 dark:text-orange-400 font-bold text-sm mb-1">Nitrogen (N)</div>
-            <div className="text-2xl font-black text-slate-800 dark:text-slate-100">Low</div>
-            <p className="text-[10px] text-orange-600 dark:text-orange-400 mt-1 uppercase font-bold">Needs Urea</p>
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl border border-green-100 dark:border-green-900/30">
+            <div className="text-green-600 dark:text-green-400 font-bold text-sm mb-1">Nitrogen (N)</div>
+            <div className="text-2xl font-black text-slate-800 dark:text-slate-100">Optimal</div>
+            <p className="text-[10px] text-green-600 dark:text-green-400 mt-1 uppercase font-bold">Maintaining Healthy</p>
           </div>
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30">
             <div className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-1">pH Level</div>

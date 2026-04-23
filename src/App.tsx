@@ -69,10 +69,10 @@ const App: React.FC = () => {
       
       {/* Offline Sync Status Notification */}
       {!isOnline && (
-        <div className="fixed top-16 left-0 right-0 z-40 px-4">
-          <div className="bg-amber-100 border border-amber-200 text-amber-800 text-xs px-3 py-2 rounded-lg shadow-sm flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-            Working Offline. Changes will sync when online.
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 px-4 whitespace-nowrap">
+          <div className="bg-slate-800/90 text-white text-[10px] px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+            Offline Mode
           </div>
         </div>
       )}
