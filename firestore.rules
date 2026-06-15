@@ -33,20 +33,54 @@ service cloud.firestore {
     // --- Grains Marketplace ---
     match /grains/{grainId} {
       function isValidGrain(data) {
-        return data.userId == request.auth.uid &&
+        return data.userId is string &&
                data.type is string && data.type.size() <= 50 &&
-               data.variety is string && data.variety.size() <= 50 &&
+               data.variety is string && data.variety.size() <= 100 &&
                data.grade is string && data.grade.size() <= 10 &&
                data.price is number && data.price >= 0 &&
                data.quantity is string && data.quantity.size() <= 50;
       }
 
+      function isPlaceBidAction() {
+        return incoming().diff(existing()).affectedKeys().hasOnly(['highestBid', 'highestBidderName', 'highestBidderId']) &&
+               incoming().highestBidderId == request.auth.uid &&
+               incoming().highestBid > (existing().get('highestBid', existing().price));
+      }
+
       allow list: if isSignedIn();
       allow get: if isSignedIn();
-      allow create: if isVerified() && isValidId(grainId) && isValidGrain(incoming());
-      allow update: if isVerified() && isOwner(existing().userId) && isValidGrain(incoming()) &&
-                    incoming().diff(existing()).affectedKeys().hasOnly(['price', 'quantity', 'status', 'updatedAt']);
+      allow create: if isVerified() && isValidId(grainId) && isValidGrain(incoming()) && incoming().userId == request.auth.uid;
+      allow update: if isVerified() && (
+        (isOwner(existing().userId) && isValidGrain(incoming()) && incoming().userId == existing().userId &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['price', 'quantity', 'status', 'updatedAt', 'farmerName', 'variety', 'type', 'grade', 'image'])) ||
+        isPlaceBidAction()
+      );
       allow delete: if isVerified() && isOwner(existing().userId);
+
+      // --- Bids Subcollection ---
+      match /bids/{bidId} {
+        function isValidBid(data) {
+          return data.userId == request.auth.uid &&
+                 data.amount is number && data.amount > 0 &&
+                 data.userName is string;
+        }
+        allow list: if isSignedIn();
+        allow create: if isVerified() && isValidBid(incoming()) && 
+                        incoming().amount > (get(/databases/$(database)/documents/grains/$(grainId)).data.get('highestBid', get(/databases/$(database)/documents/grains/$(grainId)).data.price));
+      }
+    }
+
+    // --- Messages ---
+    match /messages/{messageId} {
+      function isValidMessage(data) {
+        return data.senderId == request.auth.uid &&
+               data.receiverId is string &&
+               data.text is string && data.text.size() <= 1000;
+      }
+      allow list: if isSignedIn() && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow create: if isVerified() && isValidMessage(incoming());
+      allow update: if isVerified() && resource.data.receiverId == request.auth.uid && 
+                     incoming().diff(existing()).affectedKeys().hasOnly(['read']);
     }
 
     // --- Soil Health Records ---

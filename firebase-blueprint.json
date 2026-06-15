@@ -20,15 +20,47 @@
       "type": "object",
       "properties": {
         "userId": { "type": "string" },
+        "farmerName": { "type": "string" },
         "type": { "type": "string" },
         "variety": { "type": "string" },
         "grade": { "type": "string" },
         "price": { "type": "number" },
         "quantity": { "type": "string" },
         "status": { "type": "string", "enum": ["Available", "Sold", "Reserved"] },
+        "highestBid": { "type": "number" },
+        "highestBidderName": { "type": "string" },
+        "highestBidderId": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "type", "variety", "grade", "price", "quantity"]
+    },
+    "Bid": {
+      "title": "Bid Record",
+      "description": "Individual bid on a grain listing",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "amount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "amount"]
+    },
+    "Message": {
+      "title": "Chat Message",
+      "description": "Private message between farmers",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "listingId": { "type": "string" },
+        "listingType": { "type": "string" },
+        "text": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderId", "receiverId", "text"]
     },
     "SoilRecord": {
       "title": "Soil Health Record",
@@ -54,6 +86,14 @@
     "/grains/{grainId}": {
       "schema": "Grain",
       "description": "Global grain marketplace"
+    },
+    "/grains/{grainId}/bids/{bidId}": {
+      "schema": "Bid",
+      "description": "Bids for a specific grain listing"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Direct messages between users"
     },
     "/soil_records/{recordId}": {
       "schema": "SoilRecord",
